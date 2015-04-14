@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+# redis     start/stop redis server
+#
+# chkconfig: 2345 66 66
+# description: Start/stop redis server.
+#
+# author: wanlei@bsito.org
+# date: 2015.4.10
+
+. /etc/init.d/functions
+PIDFILE=/var/run/redis.pid
+REDIS_SERVER=/usr/local/bin/redis-server
+REDIS_CLI=/usr/local/bin/redis-cli
+REDIS_CONF=/etc/redis/redis.conf
+#REDIS_PORT=6379
+###Read configuration
+[ -r "$SYSCONFIG" ] && source "$SYSCONFIG"
+RETVAL=0 
+
+start(){
+    if [ -e $PIDFILE ]; then
+        echo "Redis Server already running."
+        exit 1
+    fi
+
+    echo -n "Starting Redis Server:"
+    $REDIS_SERVER $REDIS_CONF
+    RETVAL=$?
+}
+
+stop(){
+    if [ ! -f $PIDFILE ]; then
+        echo "Redis Server is not running"
+    else
+        PID=$(cat $PIDFILE)
+        echo "Stopping..."
+        #REDIS_CLI -p $REDIS_PORT shutdown
+        $REDIS_CLI shutdown
+        RETVAL=$?
+        while [ -x /proc/${PID} ]
+        do
+            echo "Waiting for Redis to shutdown..."
+            sleep 1
+        done
+        echo "Redis stopped."
+    fi
+}
+
+restart(){
+    stop
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status redis-server
+        RETVAL=$?
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        ;;
+esac
+exit $RETVAL
