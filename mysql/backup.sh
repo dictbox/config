@@ -11,11 +11,11 @@
 #----------------------------------------------------
 
 # (1) set up all the mysqldump variables
-FILE=dbname.`date +"%Y%m%d"`.sql
 DBSERVER=127.0.0.1
 DATABASE=XXX
 USER=XXX
 PASS=XXX
+FILE=${DATABASE}.`date +"%Y%m%d"`.sql
 
 # (2) in case you run this more than once a day, remove the previous version of the file
 unalias rm     2> /dev/null
